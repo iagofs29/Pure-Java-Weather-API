@@ -1,0 +1,119 @@
+# ==================================================
+# Java
+# ==================================================
+
+*.class
+hs_err_pid*
+replay_pid*
+
+# ==================================================
+# Maven
+# ==================================================
+
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# No ignorar:
+# pom.xml
+# mvnw
+# mvnw.cmd
+# .mvn/
+
+# ==================================================
+# Gradle
+# ==================================================
+
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ==================================================
+# Datos generados por la aplicación
+# ==================================================
+
+/data/
+/src/main/data/
+tasks.json
+
+# ==================================================
+# Visual Studio Code
+# ==================================================
+
+.vscode/
+.history/
+
+# ==================================================
+# IntelliJ IDEA
+# ==================================================
+
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ==================================================
+# Eclipse
+# ==================================================
+
+.classpath
+.project
+.settings/
+bin/
+
+# ==================================================
+# Spring Boot: archivos locales y secretos
+# ==================================================
+
+.env
+.env.*
+!.env.example
+
+application-local.properties
+application-local.yml
+application-local.yaml
+
+application-secret.properties
+application-secret.yml
+application-secret.yaml
+
+# ==================================================
+# Logs y temporales
+# ==================================================
+
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ==================================================
+# macOS
+# ==================================================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

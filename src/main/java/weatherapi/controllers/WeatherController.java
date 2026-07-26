@@ -1,6 +1,7 @@
 package weatherapi.controllers;
 
 import weatherapi.services.WeatherService;
+import weatherapi.exceptions.ApiConnectionException;
 import weatherapi.models.Weather;
 
 import java.util.NoSuchElementException;
@@ -25,9 +26,12 @@ public class WeatherController {
             System.out.println("Please type a valid line.");
         }
 
-       Weather weather = weatherService.getWeatherByCity(city);
-
-       System.out.println(weather);
+        try{
+            Weather weather = weatherService.getWeatherByCity(city);
+            System.out.println(weather);
+        }catch(ApiConnectionException | IllegalStateException e){
+            System.out.println(e.getMessage());
+        }
         
     }
 }

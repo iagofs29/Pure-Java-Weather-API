@@ -6,6 +6,8 @@ The project consumes the **Visual Crossing Weather API**, exposes custom REST en
 
 This project was developed as a learning exercise to understand how HTTP servers, REST APIs and backend architectures work before moving to Spring Boot.
 
+User must sign up on Visual Crossing (https://www.visualcrossing.com)and create env. variable with your API KEY, which is detailed further down.
+
 ---
 
 ## Features
@@ -90,16 +92,29 @@ Query Parameters
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | city | Yes | City name |
-| unitGroup | No | metric or us |
+| unitGroup | No | metric, us or uk |
 
 Response
 
 ```json
 {
-  "datetime": "14:00:00",
-  "temp": 24.3,
-  "humidity": 62.1,
-  "conditions": "Clear"
+  "city": "Madrid",
+  "weatherOnDayList": [
+    {
+      "datetime": "2026-07-28",
+      "tempmax": 25.9,
+      "tempmin": 16.7,
+      "temp": 21.2,
+      "humidity": 62.7,
+      "precipprob": 0.0,
+      "snow": 0.0,
+      "windspeed": 12.6,
+      "sunrise": "07:23:42",
+      "sunset": "21:58:36",
+      "uvindex": 9,
+      "conditions": "Clear"
+    }
+  ]
 }
 ```
 

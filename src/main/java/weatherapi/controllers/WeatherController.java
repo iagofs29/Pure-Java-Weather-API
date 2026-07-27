@@ -9,13 +9,10 @@ import weatherapi.services.WeatherService;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -31,7 +28,6 @@ public class WeatherController implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange){
-        System.out.println(exchange.getRequestURI()+ "\n" + exchange.getRequestMethod());
 
         if(!"GET".contentEquals(exchange.getRequestMethod())){
             this.handleResponse(exchange, 
@@ -47,7 +43,7 @@ public class WeatherController implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String query = exchange.getRequestURI().getQuery();
 
-        if(!query.contains("city=")){
+        if(query == null || query.isBlank() || query.isEmpty() || !query.contains("city=")){
             this.handleResponse(exchange, 
                         """
                         {
@@ -59,22 +55,21 @@ public class WeatherController implements HttpHandler {
         }
 
         Map<String, String> params = this.queryParser.parse(query);
+        WeatherRequest request = new WeatherRequest(params.get("city"), params.get("unitGroup"));
 
         try{
             switch(path){
                 case "/weather":
                 case "/weather/current":
+                    WeatherResponse retrievedData = this.weatherService.getCurrentWeather(request);
 
-                    WeatherRequest requestCurrent = new WeatherRequest(params.get("city"), params.get("unitGroup"));
-                    WeatherResponse retrievedData = this.weatherService.getCurrentWeather(requestCurrent);
-                    
                     String responseBody = gson.toJson(retrievedData, WeatherResponse.class);
 
                     this.handleResponse(exchange, responseBody, 200);
                     break;
 
                 case "/weather/forecast":
-                    WeatherRequest requestForecast = new WeatherRequest(params.get("city"), params.get("unitGroup"));
+                    //WeatherResponse retrievedData = this.weatherService.getForecast(request);
 
             }
         }catch(ApiConnectionException | CityNotFoundException e){

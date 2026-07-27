@@ -44,7 +44,7 @@ public class VisualCrossingRepository implements WeatherRepository{
     public WeatherResponse fetchCurrentWeather(WeatherRequest request){
         VisualCrossingResponse vcResponse = this.fetchData(request, INCLUDE_CURRENT);
 
-        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.days());
+        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), null, vcResponse.currentConditions());
         return finalResponse;
     }
 
@@ -58,9 +58,8 @@ public class VisualCrossingRepository implements WeatherRepository{
 
         HttpClient httpClient = HttpClient.newHttpClient();
 
-
         URI url = URI.create(BASE_URL + this.encodeParam(request.city()) + "?unitGroup=" 
-                    + this.encodeParam(request.unitGroup()) + "&include=" + include + "&key=" + API_KEY + "&contentType=json");
+                    + this.encodeParam(request.unitGroup() == null ? "metric" : request.unitGroup()) + "&include=" + this.encodeParam(include) + "&key=" + API_KEY + "&contentType=json");
 
         HttpRequest getRequest = HttpRequest.newBuilder(url).GET().build();
 
@@ -71,7 +70,6 @@ public class VisualCrossingRepository implements WeatherRepository{
 
             if(statusCode >= 200 && statusCode < 300){
                 VisualCrossingResponse vcResponse = gson.fromJson(response.body(), VisualCrossingResponse.class);
-
                 return vcResponse;
             }else{
                 switch(statusCode){

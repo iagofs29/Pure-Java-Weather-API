@@ -6,7 +6,7 @@ The project consumes the **Visual Crossing Weather API**, exposes custom REST en
 
 This project was developed as a learning exercise to understand how HTTP servers, REST APIs and backend architectures work before moving to Spring Boot.
 
-User must sign up on Visual Crossing (https://www.visualcrossing.com)and create env. variable with your API KEY, which is detailed further down.
+User must sign up on Visual Crossing (https://www.visualcrossing.com)and create an envinronment variable with your API KEY, which is detailed further down.
 
 ---
 

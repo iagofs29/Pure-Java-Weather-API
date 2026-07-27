@@ -1,6 +1,9 @@
-package weatherapi.models;
+package weatherapi.dto;
 
 import java.util.List;
+
+// NOTA IMPORTANTE: ESTE FICHERO QUEDARÁ INUTILIZADO DEBIDO A QUE VISUALCROSSINGREPOSITORY SE ENCARGARÁ DE PARSEAR
+// CORRECTAMENTE LOS DATOS EXTRAÍDOS DE LA WEB
 
 public class WeatherResponse {
     private String address;

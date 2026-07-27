@@ -1,7 +1,8 @@
 package weatherapi.repository;
 
-import weatherapi.models.Weather;
-import weatherapi.models.WeatherResponse;
+import weatherapi.dto.Weather;
+import weatherapi.dto.WeatherRequest;
+import weatherapi.dto.WeatherResponse;
 import weatherapi.exceptions.ApiConnectionException;
 
 import com.google.gson.Gson;
@@ -15,15 +16,14 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 
-public class ApiWeatherRepository implements WeatherRepository{
+public class VisualCrossingRepository implements WeatherRepository{
 
     private final Gson gson = new Gson();
     private static final String API_KEY = System.getenv("WEATHER_API_KEY");
 
-    public ApiWeatherRepository(){}
-
+    public VisualCrossingRepository(){}
    
-    public Weather fetchWeatherByCity(String city){
+    public Weather fetchWeatherByRequest(WeatherRequest request){
 
         // 1. Build HTTP request and get response.
 
@@ -33,7 +33,7 @@ public class ApiWeatherRepository implements WeatherRepository{
             throw new IllegalStateException("Environment variable 'WEATHER_API_KEY' is not defined.");
         }
 
-        URI url = URI.create("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/" + this.encodeCity(city) + "?unitGroup=metric&include=current&key=" + API_KEY + "&contentType=json");
+        URI url = URI.create("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/" + this.encodeCity(request.city()) + "?unitGroup=metric&include=current&key=" + API_KEY + "&contentType=json");
 
         HttpRequest getRequest = HttpRequest.newBuilder(url).GET().build();
 

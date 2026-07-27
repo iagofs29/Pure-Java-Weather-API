@@ -1,7 +1,8 @@
 package weatherapi.services;
 
+import weatherapi.dto.Weather;
+import weatherapi.dto.WeatherRequest;
 import weatherapi.repository.WeatherRepository;
-import weatherapi.models.Weather;
 
 public class WeatherService {
     private final WeatherRepository repository;
@@ -10,7 +11,7 @@ public class WeatherService {
         this.repository = repository;
     }
 
-    public Weather getWeatherByCity(String city){
-        return repository.fetchWeatherByCity(city);
+    public Weather getWeatherByRequest(WeatherRequest request){
+        return repository.fetchWeatherByRequest(request);
     }
 }

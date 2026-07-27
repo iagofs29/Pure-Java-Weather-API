@@ -1,9 +1,11 @@
 package weatherapi.repository;
 
+import weatherapi.dto.VisualCrossingResponse;
 import weatherapi.dto.Weather;
 import weatherapi.dto.WeatherRequest;
 import weatherapi.dto.WeatherResponse;
 import weatherapi.exceptions.ApiConnectionException;
+import weatherapi.exceptions.CityNotFoundException;
 
 import com.google.gson.Gson;
 
@@ -18,22 +20,46 @@ import java.nio.charset.StandardCharsets;
 
 public class VisualCrossingRepository implements WeatherRepository{
 
-    private final Gson gson = new Gson();
-    private static final String API_KEY = System.getenv("WEATHER_API_KEY");
+    private Gson gson;
+    private final String API_KEY;
+    private static final String INCLUDE_CURRENT = "current";
+    private static final String INCLUDE_DAYS = "days";
+    private static final String BASE_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
 
-    public VisualCrossingRepository(){}
-   
-    public Weather fetchWeatherByRequest(WeatherRequest request){
+    public VisualCrossingRepository(Gson gson){
+        this.gson = gson;
+        this.API_KEY = this.getApiKey();
+    }
 
-        // 1. Build HTTP request and get response.
+    private String getApiKey(){
+        String apiKey = System.getenv("VISUAL_CROSSING_API_KEY");
+
+        if (apiKey == null || apiKey.isBlank()) {
+        throw new IllegalStateException("Environment variable VISUAL_CROSSING_API_KEY is not defined.");
+        }
+
+        return apiKey;
+    }
+    
+    @Override
+    public WeatherResponse fetchCurrentWeather(WeatherRequest request){
+        VisualCrossingResponse vcResponse = fetchData(request, INCLUDE_CURRENT);
+        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.dayParams());
+        return finalResponse;
+    }
+
+    // TODO
+    @Override
+    public WeatherResponse fetchForecast(WeatherRequest request){
+        return null;
+    }
+
+    private VisualCrossingResponse fetchData(WeatherRequest request, String include){
 
         HttpClient httpClient = HttpClient.newHttpClient();
 
-        if (API_KEY == null || API_KEY.isBlank()) {
-            throw new IllegalStateException("Environment variable 'WEATHER_API_KEY' is not defined.");
-        }
-
-        URI url = URI.create("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/" + this.encodeCity(request.city()) + "?unitGroup=metric&include=current&key=" + API_KEY + "&contentType=json");
+        URI url = URI.create(BASE_URL + this.encodeParam(request.city()) + "?unitGroup=" 
+                    + this.encodeParam(request.unitGroup()) + "&include=" + include + "&key=" + API_KEY + "&contentType=json");
 
         HttpRequest getRequest = HttpRequest.newBuilder(url).GET().build();
 
@@ -43,19 +69,24 @@ public class VisualCrossingRepository implements WeatherRepository{
             int statusCode = response.statusCode();
 
             if(statusCode >= 200 && statusCode < 300){
-                
-                WeatherResponse weatherResponse = gson.fromJson(response.body(), WeatherResponse.class);
-                return weatherResponse.getDays().get(0);
+                VisualCrossingResponse vcResponse = gson.fromJson(response.body(), VisualCrossingResponse.class);
+                return vcResponse;
             }else{
-                throw new ApiConnectionException("* Error: Server replied with code " + statusCode);
+                switch(statusCode){
+                    case 404 -> throw new CityNotFoundException("City not found");
+                    case 401, 403, 429, 500 -> throw new ApiConnectionException("Visual Crossing server replied with code " + statusCode);
+                    default -> throw new ApiConnectionException("Visual Crossing server replied with code " + statusCode);
+
+                }
             }
         
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
+    }   
 
-    private String encodeCity(String city){
-        return URLEncoder.encode(city, StandardCharsets.UTF_8); // In case the city contains spaces or characters like 'á' or 'ñ'. E.G.: 'A Coruña'.
+
+    private String encodeParam(String param){
+        return URLEncoder.encode(param, StandardCharsets.UTF_8); // In case the city contains spaces or characters like 'á' or 'ñ'. E.G.: 'A Coruña'.
     }
 }

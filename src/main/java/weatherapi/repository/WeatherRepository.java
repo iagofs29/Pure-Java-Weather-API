@@ -1,8 +1,9 @@
 package weatherapi.repository;
 
-import weatherapi.dto.Weather;
 import weatherapi.dto.WeatherRequest;
+import weatherapi.dto.WeatherResponse;
 
 public interface WeatherRepository {
-    public Weather fetchWeatherByRequest(WeatherRequest request);
+    public WeatherResponse fetchCurrentWeather(WeatherRequest request);
+    public WeatherResponse fetchForecast(WeatherRequest request);
 }

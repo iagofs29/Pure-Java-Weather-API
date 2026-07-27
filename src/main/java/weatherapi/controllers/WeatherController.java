@@ -1,8 +1,10 @@
 package weatherapi.controllers;
 
 import weatherapi.dto.WeatherRequest;
+import weatherapi.dto.WeatherResponse;
+import weatherapi.exceptions.ApiConnectionException;
+import weatherapi.exceptions.CityNotFoundException;
 import weatherapi.http.QueryParser;
-import weatherapi.repository.WeatherRepository;
 import weatherapi.services.WeatherService;
 
 import java.io.IOException;
@@ -11,18 +13,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class WeatherController implements HttpHandler {
     private final Scanner scanner;
+    private final Gson gson;
     private final WeatherService weatherService;
     private final QueryParser queryParser = new QueryParser();
 
-    public WeatherController(Scanner scanner, WeatherService weatherService){
+    public WeatherController(Scanner scanner, WeatherService weatherService, Gson gson){
         this.scanner = scanner;
         this.weatherService = weatherService;
+        this.gson = gson;
     }
 
     @Override
@@ -31,43 +36,62 @@ public class WeatherController implements HttpHandler {
         headers.set("Content-Type", "application/json; charset = UTF-8");
 
         if(!"GET".contentEquals(exchange.getRequestMethod())){
-            this.handleMethodNotAllowed(exchange, headers);
+            this.handleResponse(exchange, headers, 
+                        """
+                        {
+                            "error": "endpoint only accepts GET method"
+                        }
+                        """, 
+                        405);
         }
 
         String path = exchange.getRequestURI().getPath();
         String query = exchange.getRequestURI().getQuery();
 
         if(!query.contains("city=")){
-            this.handleBadRequest(exchange, headers);
+            this.handleResponse(exchange, headers, 
+                        """
+                        {
+                            "error": "must specify a city"
+                        }
+                        """, 
+                        400);
         }
 
         Map<String, String> params = this.queryParser.parse(query);
-        WeatherRequest request = new WeatherRequest(params.get("city"), params.get("unitGroup"));
 
-        switch(path){
-            case "/weather":
-            case "/weather/current":
-                try{
-                    this.weatherService.getWeatherByRequest(request);
-                }catch(IllegalStateException e){
-                    System.out.println(e.getMessage());
-                }
+        try{
+            switch(path){
+                case "/weather":
+                case "/weather/current":
+                    WeatherRequest requestCurrent = new WeatherRequest(params.get("city"), params.get("unitGroup"));
+                    WeatherResponse retrievedData = this.weatherService.getCurrentWeather(requestCurrent);
 
+                    String responseBody = gson.toJson(retrievedData, WeatherResponse.class);
+                    this.handleResponse(exchange, headers, responseBody, 200);
+                    break;
 
+                case "/weather/forecast":
+                    WeatherRequest requestForecast = new WeatherRequest(params.get("city"), params.get("unitGroup"));
+
+            }
+        }catch(ApiConnectionException | CityNotFoundException e){
+            handleResponse(exchange, headers, 
+                """
+                {
+                    "error": """ + e.getMessage() + """
+                } 
+                """
+                , e.getClass() == ApiConnectionException.class ? 502 : 404);;
         }
 
     }
 
-    private void handleBadRequest(HttpExchange exchange, Headers headers){
-        String responseBody = """
-                {
-                    "error": "must specify a city"
-                }
-                """;
-        byte[] bodyByte = responseBody.getBytes(StandardCharsets.UTF_8);
+    private void handleResponse(HttpExchange exchange, Headers headers, String body, int statusCode){
+        byte[] bodyByte = body.getBytes(StandardCharsets.UTF_8);
 
         try{
-            exchange.sendResponseHeaders(400, bodyByte.length);
+            exchange.sendResponseHeaders(statusCode, bodyByte.length);
             try(OutputStream stream = exchange.getResponseBody()){
                 stream.write(bodyByte);
             }
@@ -75,53 +99,4 @@ public class WeatherController implements HttpHandler {
             System.out.println("Error sending HTTP response: " + e.getMessage());
         }
     }
-
-    private void handleMethodNotAllowed(HttpExchange exchange, Headers headers){
-        headers.set("Allow", "GET");
-        
-        String responseBody = """
-                {
-                    "error": "endpoint only accepts GET method"
-                }
-                """;
-        byte [] bodyBytes = responseBody.getBytes(StandardCharsets.UTF_8);
-            
-        try {
-            exchange.sendResponseHeaders(405, bodyBytes.length);
-            try(OutputStream stream = exchange.getResponseBody()){
-                stream.write(bodyBytes);
-            }
-        }catch (IOException e) {
-            System.out.println("Error sending HTTP response: " + e.getMessage());
-        }
-    }
-
-
-    /* 
-    public void showWeatherForCity(){
-        String city = "";
-
-        System.out.print("Type the city you would like to know the weather of (Press enter to exit program): ");
-
-        try{
-            city = scanner.nextLine();
-
-            if(city.isBlank() || city.isEmpty()){
-                scanner.close();
-                System.exit(0);
-            }
-
-            try{
-                Weather weather = weatherService.getWeatherByCity(city);
-                System.out.println(weather);
-            }catch(ApiConnectionException | IllegalStateException e){
-                System.out.println(e.getMessage());
-            }
-        }catch(NoSuchElementException e){
-            System.out.println("Please type a valid line.");
-        }
-        
-    }
-    */
-    
 }

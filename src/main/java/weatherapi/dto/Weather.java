@@ -1,5 +1,6 @@
 package weatherapi.dto;
 
+
 public record Weather (
     String datetime,
     double tempmax,

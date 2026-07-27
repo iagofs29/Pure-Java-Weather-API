@@ -2,6 +2,7 @@ package weatherapi.services;
 
 import weatherapi.dto.Weather;
 import weatherapi.dto.WeatherRequest;
+import weatherapi.dto.WeatherResponse;
 import weatherapi.repository.WeatherRepository;
 
 public class WeatherService {
@@ -11,7 +12,9 @@ public class WeatherService {
         this.repository = repository;
     }
 
-    public Weather getWeatherByRequest(WeatherRequest request){
-        return repository.fetchWeatherByRequest(request);
+    public WeatherResponse getCurrentWeather(WeatherRequest request){
+        return repository.fetchCurrentWeather(request);
     }
+
+    //public Weather getForecast(WeatherRequest request){}
 }

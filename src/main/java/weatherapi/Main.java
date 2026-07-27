@@ -1,26 +1,24 @@
 package weatherapi;
 
-import com.sun.net.httpserver.HttpContext;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.Scanner;
 
 import weatherapi.controllers.*;
-import weatherapi.dto.*;
 import weatherapi.repository.*;
 import weatherapi.services.*;
-import weatherapi.exceptions.*;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        WeatherRepository repository = new VisualCrossingRepository();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        WeatherRepository repository = new VisualCrossingRepository(gson);
         WeatherService weatherService = new WeatherService(repository);
-        WeatherController weatherController = new WeatherController(scanner, weatherService);
+        WeatherController weatherController = new WeatherController(scanner, weatherService, gson);
 
         try{
             HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);

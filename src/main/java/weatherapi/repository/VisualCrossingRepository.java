@@ -42,7 +42,8 @@ public class VisualCrossingRepository implements WeatherRepository{
     
     @Override
     public WeatherResponse fetchCurrentWeather(WeatherRequest request){
-        VisualCrossingResponse vcResponse = fetchData(request, INCLUDE_CURRENT);
+        VisualCrossingResponse vcResponse = this.fetchData(request, INCLUDE_CURRENT);
+
         WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.dayParams());
         return finalResponse;
     }
@@ -56,6 +57,7 @@ public class VisualCrossingRepository implements WeatherRepository{
     private VisualCrossingResponse fetchData(WeatherRequest request, String include){
 
         HttpClient httpClient = HttpClient.newHttpClient();
+
 
         URI url = URI.create(BASE_URL + this.encodeParam(request.city()) + "?unitGroup=" 
                     + this.encodeParam(request.unitGroup()) + "&include=" + include + "&key=" + API_KEY + "&contentType=json");
@@ -72,10 +74,9 @@ public class VisualCrossingRepository implements WeatherRepository{
                 return vcResponse;
             }else{
                 switch(statusCode){
-                    case 404 -> throw new CityNotFoundException("City not found");
-                    case 401, 403, 429, 500 -> throw new ApiConnectionException("Visual Crossing server replied with code " + statusCode);
-                    default -> throw new ApiConnectionException("Visual Crossing server replied with code " + statusCode);
-
+                    case 400, 404 -> throw new CityNotFoundException("City not found");
+                    case 401, 403, 429, 500 -> throw new ApiConnectionException(" Visual Crossing server replied with code " + statusCode);
+                    default -> throw new ApiConnectionException(" Visual Crossing server replied with code " + statusCode);
                 }
             }
         
@@ -85,7 +86,11 @@ public class VisualCrossingRepository implements WeatherRepository{
     }   
 
 
-    private String encodeParam(String param){
-        return URLEncoder.encode(param, StandardCharsets.UTF_8); // In case the city contains spaces or characters like 'á' or 'ñ'. E.G.: 'A Coruña'.
+    private String encodeParam(String param){    // In case the city contains spaces or characters like 'á' or 'ñ'. E.G.: 'A Coruña'.
+        if(param != null){
+            return URLEncoder.encode(param, StandardCharsets.UTF_8);
+        }else{
+            return "";
+        }
     }
 }

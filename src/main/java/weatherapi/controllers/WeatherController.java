@@ -9,11 +9,13 @@ import weatherapi.services.WeatherService;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Scanner;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -67,7 +69,8 @@ public class WeatherController implements HttpHandler {
                     WeatherRequest requestCurrent = new WeatherRequest(params.get("city"), params.get("unitGroup"));
                     WeatherResponse retrievedData = this.weatherService.getCurrentWeather(requestCurrent);
 
-                    String responseBody = gson.toJson(retrievedData, WeatherResponse.class);
+                    Type typeOfWeatherResponse = new TypeToken<WeatherResponse>(){}.getType();
+                    String responseBody = gson.toJson(retrievedData, typeOfWeatherResponse);
                     this.handleResponse(exchange, headers, responseBody, 200);
                     break;
 

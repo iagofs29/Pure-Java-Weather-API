@@ -1,7 +1,6 @@
 package weatherapi.repository;
 
 import weatherapi.dto.VisualCrossingResponse;
-import weatherapi.dto.Weather;
 import weatherapi.dto.WeatherRequest;
 import weatherapi.dto.WeatherResponse;
 import weatherapi.exceptions.ApiConnectionException;

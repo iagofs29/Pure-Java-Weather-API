@@ -4,5 +4,5 @@ import java.util.List;
 
 public record VisualCrossingResponse (
     String address,
-    List<Weather> dayParams
+    List<Weather> days
 ){}

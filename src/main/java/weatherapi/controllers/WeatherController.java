@@ -67,9 +67,8 @@ public class WeatherController implements HttpHandler {
 
                     WeatherRequest requestCurrent = new WeatherRequest(params.get("city"), params.get("unitGroup"));
                     WeatherResponse retrievedData = this.weatherService.getCurrentWeather(requestCurrent);
-
-                    Type typeOfWeatherResponse = new TypeToken<WeatherResponse>(){}.getType();
-                    String responseBody = gson.toJson(retrievedData, typeOfWeatherResponse);
+                    
+                    String responseBody = gson.toJson(retrievedData, WeatherResponse.class);
 
                     this.handleResponse(exchange, responseBody, 200);
                     break;

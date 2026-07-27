@@ -44,7 +44,7 @@ public class VisualCrossingRepository implements WeatherRepository{
     public WeatherResponse fetchCurrentWeather(WeatherRequest request){
         VisualCrossingResponse vcResponse = this.fetchData(request, INCLUDE_CURRENT);
 
-        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.dayParams());
+        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.days());
         return finalResponse;
     }
 
@@ -71,6 +71,7 @@ public class VisualCrossingRepository implements WeatherRepository{
 
             if(statusCode >= 200 && statusCode < 300){
                 VisualCrossingResponse vcResponse = gson.fromJson(response.body(), VisualCrossingResponse.class);
+
                 return vcResponse;
             }else{
                 switch(statusCode){
@@ -84,7 +85,6 @@ public class VisualCrossingRepository implements WeatherRepository{
             throw new RuntimeException(e);
         }
     }   
-
 
     private String encodeParam(String param){    // In case the city contains spaces or characters like 'á' or 'ñ'. E.G.: 'A Coruña'.
         if(param != null){

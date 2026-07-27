@@ -55,22 +55,43 @@ public class WeatherController implements HttpHandler {
         }
 
         Map<String, String> params = this.queryParser.parse(query);
-        WeatherRequest request = new WeatherRequest(params.get("city"), params.get("unitGroup"));
+        WeatherRequest request = new WeatherRequest(params.get("city"), params.get("unitGroup"), params.get("days") == null ? 7 : Integer.parseInt(params.get("days")));
 
         try{
             switch(path){
                 case "/weather":
                 case "/weather/current":
-                    WeatherResponse retrievedData = this.weatherService.getCurrentWeather(request);
+                    WeatherResponse retrievedCurrent = this.weatherService.getCurrentWeather(request);
 
-                    String responseBody = gson.toJson(retrievedData, WeatherResponse.class);
+                    String responseBody = gson.toJson(retrievedCurrent, WeatherResponse.class);
 
                     this.handleResponse(exchange, responseBody, 200);
                     break;
 
                 case "/weather/forecast":
-                    //WeatherResponse retrievedData = this.weatherService.getForecast(request);
+                    if(request.days() < 1 || request.days() > 7){
+                        this.handleResponse(exchange, 
+                            """
+                            {
+                                "error": "Invalid days query parameter, must be between 1 and 7"
+                            }
+                            """,
+                            400);
+                    }else{
+                        WeatherResponse retrievedForecast = this.weatherService.getForecast(request);
 
+                        String responseForecast = gson.toJson(retrievedForecast, WeatherResponse.class);
+                        this.handleResponse(exchange, responseForecast, 200);
+                    }
+                    break;
+                
+                default: this.handleResponse(exchange, 
+                        """
+                        {
+                            "error": "Invalid request"
+                        }
+                        """, 
+                        400);
             }
         }catch(ApiConnectionException | CityNotFoundException e){
             handleResponse(exchange, 

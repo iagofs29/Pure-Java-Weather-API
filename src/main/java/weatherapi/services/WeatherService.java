@@ -15,5 +15,9 @@ public class WeatherService {
         return repository.fetchCurrentWeather(request);
     }
 
+    public WeatherResponse getForecast(WeatherRequest request){
+        return repository.fetchForecast(request);
+    }
+
     //public Weather getForecast(WeatherRequest request){}
 }

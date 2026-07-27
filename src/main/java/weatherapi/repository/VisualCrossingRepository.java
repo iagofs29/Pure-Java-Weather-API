@@ -51,14 +51,17 @@ public class VisualCrossingRepository implements WeatherRepository{
     // TODO
     @Override
     public WeatherResponse fetchForecast(WeatherRequest request){
-        return null;
+        VisualCrossingResponse vcResponse = this.fetchData(request, INCLUDE_DAYS);
+
+        WeatherResponse finalResponse = new WeatherResponse(vcResponse.address(), vcResponse.days(), null);
+        return finalResponse;
     }
 
     private VisualCrossingResponse fetchData(WeatherRequest request, String include){
 
         HttpClient httpClient = HttpClient.newHttpClient();
 
-        URI url = URI.create(BASE_URL + this.encodeParam(request.city()) + "?unitGroup=" 
+        URI url = URI.create(BASE_URL + this.encodeParam(request.city()) + "/next" + Integer.toString(request.days() - 1) + "days" + "?unitGroup=" 
                     + this.encodeParam(request.unitGroup() == null ? "metric" : request.unitGroup()) + "&include=" + this.encodeParam(include) + "&key=" + API_KEY + "&contentType=json");
 
         HttpRequest getRequest = HttpRequest.newBuilder(url).GET().build();

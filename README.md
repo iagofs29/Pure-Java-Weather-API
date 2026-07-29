@@ -129,7 +129,7 @@ GET /weather/forecast
 Example
 
 ```
-GET /weather/forecast?city=Vigo&unitGroup=metric&days=5
+GET /weather/forecast?city=Madrid&unitGroup=metric&days=5
 ```
 
 Query Parameters
